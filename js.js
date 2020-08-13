@@ -380,23 +380,9 @@ function percentModel(NotFormatted,tyName) {
 			}
 		}
 	}
-	// //整理percent 
-	// for (i = 0; i < percent.length; i++) {
-	// 	console.log(percent[i][0].calArea, percent[i][0].county)
-	// 	city = percent[i][0].eachTown, percent[i][0].county
-
-	// 	for (j=1; j<percent[i].length; j++){
-	// 		townTotalArea = percent[i][j].calArea, percent[i][j].county
-	// 		percent[i][j].percent = Math.ceil(townTotalArea/city *100) //無條件進位
-	// 	}
-	// }
-	console.log(percent)
 	// rank 
 	var totalF = 0
 	for (i = 0; i < percent.length; i++) {
-		// if (percent[i][0].calArea > cityMax){
-		// 	cityMax = percent[i][0].calArea	
-		// }
 		totalF += parseInt(percent[i][0].calArea)
 	}
 	console.log(totalF)
@@ -422,7 +408,6 @@ function percentModel(NotFormatted,tyName) {
 		}
 	}
 
-	console.log("dataC",dataC)
 	d3.select("#taiwan")
 	.selectAll("path")
 	.style("fill", function (d) {
