@@ -1,7 +1,7 @@
 #### 0813 upDate
 1. Add Flooding Area Formula Percent
 
-![image](https://raw.githubusercontent.com/Penny8336/typhoonMap/master/0813.PNG)
+![image](https://github.com/Penny8336/typhoonMap/blob/master/813.PNG?raw=true)
 
 #### 0715 upDate  
 1.Download csv file.  
