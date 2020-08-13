@@ -37,44 +37,49 @@ var name_index = [
 
 //tootip
 var divbar = d3.select("#town")
-var projection = d3.geoMercator().center([124, 25]).scale(7000)
+var projection = d3.geoMercator().center([123, 25]).scale(7000)
 var path = d3.geoPath().projection(projection) //創造path
 var active = d3.select(null);
-
 var svg = d3.select("#taiwan").append("svg")
 	.attr("height", 800)
-	.attr("width", 500)
-	.attr("class", "fortaiwan")
+	.attr("width", 470)
+	.style("stroke-width",0.5)
 	.call(d3.zoom()
 	.on("zoom", function () {
 		d3.select("#taiwan").select("svg").selectAll("g")
 			.attr("transform", d3.event.transform)
 		var temp = document.getElementById('area').transform.baseVal[1].matrix.a
-		if (temp >= 8) {
-			d3.select("#area").attr("class", "detail")
-			d3.select("#map").attr("class", "featuredetail")
+		console.log(temp)
+		if (temp >= 4) {
+			d3.selectAll("#area").style("stroke-width",0.2).style("opacity",0.9)
+			d3.select("#taiwan").style("stroke-width",0.2)
 		}
-		else if (temp < 8) {
-			d3.select("#area").attr("class", "area")
+		else if (temp < 6) {
+			d3.selectAll("#area").style("stroke-width",8).style("opacity",0.7)
+			d3.select("#taiwan").style("stroke-width",0.5)
 		}
 	}))
+
+var div = d3.select("#taiwantooltip").append("div")
+	.attr("class", "tooltip")
+	.style("opacity", 0)	
 var g = svg.append("g")
 var flag = 0
 function drawMap(err, Tgeojson) {
-	
+
 	if (err) throw err
 	g.selectAll("path")
 		.data(Tgeojson.features)
 		.enter().append("path")
 		.attr("d", path)
-		.attr("class", "feature")
+		.attr("class", function(d) {return d.properties.C_Name})
+		.attr("id", function(d) {return d.properties.T_Name})
+		.style("fill", "white")
+		.style("stroke","black")
 
 	d3.json(eventarea, drawEachArea)
 
 	function drawEachArea(err, geojson) {
-		d3.json(townArea, townareaf)
-
-		function townareaf(err,tjosn){
 		
 		if (err) throw err
 		//Drop-down menu
@@ -90,6 +95,9 @@ function drawMap(err, Tgeojson) {
 			.text(function (d) {return d.name;})
 
 		function onchange() {
+			d3.select("#taiwan")
+			.selectAll("path")
+			.style("fill", "white")
 			if (flag == 4){
 				d3.selectAll("#area").remove()
 				d3.selectAll("#barchartID").remove()
@@ -114,10 +122,9 @@ function drawMap(err, Tgeojson) {
 				var townName = getAttr.TOWNNAME
 				var name = getAttr.name //有時候name有路名有時候null
 				var calArea = turf.area(geojson.features[i]).toFixed(2)
-				for (k=0; k<tjosn.features.length; k++){
-					if (townName == tjosn.features[k].properties.T_Name){
-						var townArea = tjosn.features[k].properties.Area
-						console.log(townName,townArea)
+				for (k=0; k<Tgeojson.features.length; k++){
+					if (townName == Tgeojson.features[k].properties.T_Name){
+						var townArea = Tgeojson.features[k].properties.Area
 						break;
 					}
 					else{
@@ -139,15 +146,13 @@ function drawMap(err, Tgeojson) {
 
 			}
 			document.getElementById("but").onclick = function() {download(statistics,tyName)};
-
+			document.getElementById("percent").onclick = function() {percentModel(statistics,tyName)};
 			barChart(statistics,tyName,flag);
 			var colorlist = ["area1","area2","area3","area4"]
 
 			//drawarea
 			//tootip
-			var div = d3.select("#taiwantooltip").append("div")
-				.attr("class", "tooltip")
-				.style("opacity", 0)
+
 							
 			d3.select("#taiwan").select("svg").append("g")
 				.attr("class", colorlist[flag])
@@ -180,16 +185,12 @@ function drawMap(err, Tgeojson) {
 
 		}
 		//console.log("histogram")
-	}//drawarea
+	// }//drawarea
 }
 }
 
 function barChart(statistics,tyName){
 	// var barName = d3.select("#town")
-
-
-	console.log(statistics)
-
 	var groups = d3.map(statistics, function(d){return(d[0].townName)}).keys() //for x axis
 	var eachTOWN = d3.map(statistics, function(d){return(d[0].eachTown)}).keys() //for x axis
 	var max = eachTOWN.reduce(function (a, b) {return Math.max(a, b);});
@@ -206,8 +207,8 @@ function barChart(statistics,tyName){
 
 
 	var margin = {top: 30, right: 30, bottom: 70, left: 60},
-    width = 330 - margin.left - margin.right,
-    height = 380 - margin.top - margin.bottom;
+    width = 300 - margin.left - margin.right,
+    height = 330 - margin.top - margin.bottom;
 
 	// append the svg object to the body of the page
 	var areaBC = d3.select("#areaBarChart")
@@ -347,10 +348,118 @@ function download(NotFormatted,tyName) {
 	});
 
 	var fileTitle = tyName; // or 'my-unique-title'
-
 	exportCSVFile(headers, itemsFormatted, fileTitle); // call the exportCSVFile() function to process the JSON and trigger the download
 }
 
-d3.json("https://raw.githubusercontent.com/Penny8336/DV-homework2/master/taiwan.json", drawMap)
+function percentModel(NotFormatted,tyName) {
+	d3.selectAll("#area").remove()
+	percent = []
+	//整理同一區
+	for (i = 0; i < NotFormatted.length; i++) {
+		county = NotFormatted[i][0]
+		for (j=1; j<NotFormatted[i].length; j++){
+			town = NotFormatted[i][j]
+			if(percent.some(x => x[0].county == county.townName)) {
+				var countyIndex = parseInt(percent.map(function (e) {return e[0].county; }).indexOf(county.townName))
+				temp = percent[countyIndex]
+				if(temp.some(x => x.county == town.townName)){
+					var Index = parseInt(temp.map(function (e) {return e.county; }).indexOf(town.townName))
+					tolArea = parseInt(town.calArea) + parseInt(percent[countyIndex][Index].calArea)
+					percent[countyIndex][Index].calArea = parseInt(tolArea)
+					// percent[countyIndex][Index].push({county:town.townName ,calArea:tolArea})
+				}
+				else{
+					percent[countyIndex].push({town:town.townName ,calArea:town.calArea, percent: 0})
+				}
+			}
+			else{
+				percent.push([{county: county.townName,calArea:county.eachTown, rank: 0}])
+				var countyIndex = parseInt(percent.map(function (e) { return e[0].county; }).indexOf(county.townName))
+				percent[countyIndex].push({town:town.townName ,calArea:town.calArea, percent: 0})
+				
+			}
+		}
+	}
+	// //整理percent 
+	// for (i = 0; i < percent.length; i++) {
+	// 	console.log(percent[i][0].calArea, percent[i][0].county)
+	// 	city = percent[i][0].eachTown, percent[i][0].county
+
+	// 	for (j=1; j<percent[i].length; j++){
+	// 		townTotalArea = percent[i][j].calArea, percent[i][j].county
+	// 		percent[i][j].percent = Math.ceil(townTotalArea/city *100) //無條件進位
+	// 	}
+	// }
+	console.log(percent)
+	// rank 
+	var totalF = 0
+	for (i = 0; i < percent.length; i++) {
+		// if (percent[i][0].calArea > cityMax){
+		// 	cityMax = percent[i][0].calArea	
+		// }
+		totalF += parseInt(percent[i][0].calArea)
+	}
+	console.log(totalF)
+	var dataC = d3.map();
+	var dataT = d3.map();
+
+	var colorscaleC = d3.scaleThreshold()
+		.domain([1, 25, 50, 75, 100])
+		.range(["#FFFFFF", "#AED6F1", "#5DADE2", "#3498DB", "#2E86C1","#2874A6"])
+
+	var colorscaleT = d3.scaleThreshold()
+		.domain([1, 25, 50, 75, 100])
+		.range(["#FFFFFF", "#FADBD8", "#F1948A", "#EC7063", "#CB4335","#943126"])		
+
+
+	mapping(percent)
+	function mapping(d) { 
+		for (i = 0; i < percent.length; i++) {
+			for (j=0; j<percent[i].length; j++){
+				dataC.set(d[i][j].county, +d[i][j].calArea)
+				dataT.set(d[i][j].town, +d[i][j].calArea)
+			}
+		}
+	}
+
+	console.log("dataC",dataC)
+	d3.select("#taiwan")
+	.selectAll("path")
+	.style("fill", function (d) {
+		d.totalareaC = dataC.get(d.properties.C_Name) || 0
+		d.totalareaT = dataT.get(d.properties.T_Name) || 0
+		d.tol = Math.ceil(d.totalareaC/totalF*100)
+
+		if (d.totalareaT >1 ){
+			d.per = Math.ceil(d.totalareaT / d.totalareaC *100)
+			return colorscaleT(d.per);
+		}
+		else 
+		d.per = 0
+		return colorscaleC(d.tol);
+		
+	})
+	.style("opacity",0.8)
+	.on("mouseover", function (z) {
+		console.log(z)
+		var totalareaTz = (z.per)
+		var totalareaCz = (z.tol)
+		var name = (z.properties.T_Name)
+		var CN = (z.properties.C_Name)
+
+		div.transition()
+			.duration(200)
+			.style("opacity", .9);
+		div.html(CN +name+totalareaCz+"%" +"<br>" + totalareaTz+"%")
+			.style("left", (d3.event.pageX / 2) + "px")
+			.style("top", ((d3.event.pageY - 28) / 2) + "px")
+	})
+	.on("mouseout", function (d) {
+		div.transition()
+			.duration(500)
+			.style("opacity", 0);
+	})
+}
+d3.json("/ta.json", drawMap)
 // d3.json(townarea, drawMap)
 
