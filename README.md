@@ -1,4 +1,5 @@
-#### 0813 upDate
+#### 0813 upDate 
+Need to download taiwan.json add to file https://reurl.cc/d5rmng
 1. Add Flooding Area Formula Percent
 
 ![image](https://github.com/Penny8336/typhoonMap/blob/master/813.PNG?raw=true)
