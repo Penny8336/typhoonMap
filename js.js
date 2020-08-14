@@ -359,23 +359,23 @@ function percentModel(NotFormatted,tyName) {
 		county = NotFormatted[i][0]
 		for (j=1; j<NotFormatted[i].length; j++){
 			town = NotFormatted[i][j]
-			if(percent.some(x => x[0].county == county.townName)) {
+			if(percent.some(x => x[0].county == county.townName)) { //是否同縣市
 				var countyIndex = parseInt(percent.map(function (e) {return e[0].county; }).indexOf(county.townName))
 				temp = percent[countyIndex]
-				if(temp.some(x => x.county == town.townName)){
-					var Index = parseInt(temp.map(function (e) {return e.county; }).indexOf(town.townName))
+				if(temp.some(x => x.town == town.townName)){ //是否同區
+					var Index = parseInt(temp.map(function (e) {return e.town; }).indexOf(town.townName))
 					tolArea = parseInt(town.calArea) + parseInt(percent[countyIndex][Index].calArea)
 					percent[countyIndex][Index].calArea = parseInt(tolArea)
 					// percent[countyIndex][Index].push({county:town.townName ,calArea:tolArea})
 				}
 				else{
-					percent[countyIndex].push({town:town.townName ,calArea:town.calArea, percent: 0})
+					percent[countyIndex].push({town:town.townName ,calArea:town.calArea})
 				}
 			}
 			else{
-				percent.push([{county: county.townName,calArea:county.eachTown, rank: 0}])
+				percent.push([{county: county.townName,calArea:county.eachTown}])
 				var countyIndex = parseInt(percent.map(function (e) { return e[0].county; }).indexOf(county.townName))
-				percent[countyIndex].push({town:town.townName ,calArea:town.calArea, percent: 0})
+				percent[countyIndex].push({town:town.townName ,calArea:town.calArea})
 				
 			}
 		}
@@ -408,7 +408,7 @@ function percentModel(NotFormatted,tyName) {
 			}
 		}
 	}
-
+	console.log(dataT)
 	d3.select("#taiwan")
 	.selectAll("path")
 	.style("fill", function (d) {
