@@ -380,6 +380,7 @@ function percentModel(NotFormatted,tyName) {
 			}
 		}
 	}
+	console.log(percent)
 	// rank 
 	var totalF = 0
 	for (i = 0; i < percent.length; i++) {
@@ -435,7 +436,7 @@ function percentModel(NotFormatted,tyName) {
 		div.transition()
 			.duration(200)
 			.style("opacity", .9);
-		div.html(CN +name+totalareaCz+"%" +"<br>" + totalareaTz+"%")
+		div.html(CN +totalareaCz+"%" +"<br>" +name + totalareaTz+"%")
 			.style("left", (d3.event.pageX / 2) + "px")
 			.style("top", ((d3.event.pageY - 28) / 2) + "px")
 	})
@@ -445,6 +446,6 @@ function percentModel(NotFormatted,tyName) {
 			.style("opacity", 0);
 	})
 }
-d3.json("/ta.json", drawMap)
+d3.json("/taiwan.json", drawMap)
 // d3.json(townarea, drawMap)
 
