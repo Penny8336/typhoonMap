@@ -414,8 +414,6 @@ function percentModel(NotFormatted,tyName) {
 			d.per = 0
 			return city_color(d.tol); //Non Flooded District 
 		}
-
-		
 	})
 	.style("opacity",0.8)
 	.on("mouseover", function (z) {
@@ -438,3 +436,4 @@ function percentModel(NotFormatted,tyName) {
 	})
 }
 d3.json("/taiwan.json", drawMap)
+
