@@ -49,7 +49,6 @@ var svg = d3.select("#taiwan").append("svg")
 		d3.select("#taiwan").select("svg").selectAll("g")
 			.attr("transform", d3.event.transform)
 		var temp = document.getElementById('area').transform.baseVal[1].matrix.a
-		console.log(temp)
 		if (temp >= 4) {
 			d3.selectAll("#area").style("stroke-width",0.2).style("opacity",0.9)
 			d3.select("#taiwan").style("stroke-width",0.2)
@@ -162,7 +161,6 @@ function drawMap(err, Tgeojson) {
 				.enter().append("path")
 				.attr("d", path)
 				.on("mouseover", function (z) {
-					console.log(z)
 					var name = (z.properties.name)
 					var CN = (z.properties.COUNTYNAME)
 			
@@ -184,7 +182,6 @@ function drawMap(err, Tgeojson) {
 			flag += 1
 
 		}
-		//console.log("histogram")
 	// }//drawarea
 }
 }
@@ -195,11 +192,11 @@ function barChart(statistics,tyName){
 	var eachTOWN = d3.map(statistics, function(d){return(d[0].eachTown)}).keys() //for x axis
 	var max = eachTOWN.reduce(function (a, b) {return Math.max(a, b);});
 
-	var color1 = ["#B6CED1", "#85C1E9" ,"#3498DB","#2874A6","#1B4F72"]
-	var color2 = ["#D7BDE2", "#BB8FCE" ,"#A569BD","#8E44AD","#6C3483"]
-	var color3 = ["#A2D9CE", "#ABEBC6" ,"#58D68D","#28B463","#1D8348"]
-	var color4 = ["#F5CBA7", "#F0B27A" ,"#EB984E","#E67E22","#CA6F1E"]
-	var colorbar = [color1,color2,color3,color4]
+	var blue = ["#B6CED1", "#85C1E9" ,"#3498DB","#2874A6","#1B4F72"]
+	var purple = ["#D7BDE2", "#BB8FCE" ,"#A569BD","#8E44AD","#6C3483"]
+	var green = ["#A2D9CE", "#ABEBC6" ,"#58D68D","#28B463","#1D8348"]
+	var orange = ["#F5CBA7", "#F0B27A" ,"#EB984E","#E67E22","#CA6F1E"]
+	var colorbar = [blue,purple,green,orange]
 	var myColor = d3.scaleThreshold()
 		.range(colorbar[flag])
 		.domain([max*0.2, max*0.4, max*0.6, max*0.8]);
@@ -334,9 +331,6 @@ function download(NotFormatted,tyName) {
 	// format the data
 	NotFormatted.forEach((item) => {
 		item.forEach((town) => {
-			// console.log(town.townName)
-			// console.log(town.name)
-			// console.log(town.calArea)
 			itemsFormatted.push({
 				// typhoon: tyName,
 				model: town.townName,
@@ -380,23 +374,21 @@ function percentModel(NotFormatted,tyName) {
 			}
 		}
 	}
-	console.log(percent)
 	// rank 
 	var totalF = 0
 	for (i = 0; i < percent.length; i++) {
 		totalF += parseInt(percent[i][0].calArea)
 	}
-	console.log(totalF)
 	var dataC = d3.map();
 	var dataT = d3.map();
 
-	var colorscaleC = d3.scaleThreshold()
+	var city_color = d3.scaleThreshold() //for city
 		.domain([1, 25, 50, 75, 100])
 		.range(["#FFFFFF", "#AED6F1", "#5DADE2", "#3498DB", "#2E86C1","#2874A6"])
 
-	var colorscaleT = d3.scaleThreshold()
+	var district_color = d3.scaleThreshold()
 		.domain([1, 25, 50, 75, 100])
-		.range(["#FFFFFF", "#FADBD8", "#F1948A", "#EC7063", "#CB4335","#943126"])		
+		.range(["#FFFFFF", "#FADBD8", "#F1948A", "#EC7063", "#CB4335","#943126"]) //for district
 
 
 	mapping(percent)
@@ -408,26 +400,25 @@ function percentModel(NotFormatted,tyName) {
 			}
 		}
 	}
-	console.log(dataT)
 	d3.select("#taiwan")
 	.selectAll("path")
 	.style("fill", function (d) {
 		d.totalareaC = dataC.get(d.properties.C_Name) || 0
 		d.totalareaT = dataT.get(d.properties.T_Name) || 0
 		d.tol = Math.ceil(d.totalareaC/totalF*100)
-
-		if (d.totalareaT >1 ){
+		if (d.totalareaT >1 ){	
 			d.per = Math.ceil(d.totalareaT / d.totalareaC *100)
-			return colorscaleT(d.per);
+			return district_color(d.per); //Flooded District 
 		}
-		else 
-		d.per = 0
-		return colorscaleC(d.tol);
+		else {
+			d.per = 0
+			return city_color(d.tol); //Non Flooded District 
+		}
+
 		
 	})
 	.style("opacity",0.8)
 	.on("mouseover", function (z) {
-		console.log(z)
 		var totalareaTz = (z.per)
 		var totalareaCz = (z.tol)
 		var name = (z.properties.T_Name)
@@ -447,5 +438,3 @@ function percentModel(NotFormatted,tyName) {
 	})
 }
 d3.json("/taiwan.json", drawMap)
-// d3.json(townarea, drawMap)
-
