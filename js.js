@@ -1,5 +1,5 @@
-var eventarea = "https://raw.githubusercontent.com/Penny8336/mapExample/master/total.geojson";
-var townArea = "https://raw.githubusercontent.com/Penny8336/DV-homework2/master/taiwantown.json";
+var eventarea = "https://raw.githubusercontent.com/Penny8336/typhoonMap/master/taiwan.geojson";
+var townArea = "https://raw.githubusercontent.com/Penny8336/typhoonMap/master/taiwantown.json;
 var name_index = [
 	{ index: 0 },
 	{ index: 0, name: "105-09-27梅姬颱風" },
